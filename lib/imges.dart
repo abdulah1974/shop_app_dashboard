@@ -1,14 +1,50 @@
 import 'package:flutter/material.dart';
-
-
-class dashboard extends StatefulWidget {
-  const dashboard({Key? key}) : super(key: key);
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+class imges extends StatefulWidget {
+  const imges({Key? key}) : super(key: key);
 
   @override
-  _dashboardState createState() => _dashboardState();
+  _imgesState createState() => _imgesState();
 }
 
-class _dashboardState extends State<dashboard> {
+class _imgesState extends State<imges> {
+  late File _image = new File('your initial file');
+
+  final picker = ImagePicker();
+
+  Future<void> getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
+      }
+    });
+  }
+
+  upload(File imageFile) async {
+    var stream =
+    new http.ByteStream(imageFile.openRead());
+
+    var length = await imageFile.length();
+
+    var uri = Uri.parse("http://192.168.100.45:1500/add_category?email=info@zinelive.com&password=ZineLive");
+
+    var request = new http.MultipartRequest("POST", uri);
+    var multipartFile = new http.MultipartFile('file', stream, length,
+        filename:(imageFile.path));
+    request.files.add(multipartFile);
+    var response = await request.send();
+    print(response.statusCode);
+    response.stream.transform(utf8.decoder).listen((value) {
+      print(value);
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +63,9 @@ class _dashboardState extends State<dashboard> {
                     alignment: Alignment.center,
                     padding: EdgeInsets.fromLTRB(0, 87, 0, 0),
                     child: InkWell(
-                        onTap: (){},
+                        onTap: (){
+                          getImage();
+                        },
                         child: Column(children: [
                           Icon(
                             Icons.add,
@@ -41,7 +79,9 @@ class _dashboardState extends State<dashboard> {
                     alignment: Alignment.center,
                     padding: EdgeInsets.fromLTRB(0, 87, 0, 0),
                     child: InkWell(
-                        onTap: (){},
+                        onTap: (){
+                          upload(_image);
+                        },
                         child: Column(children: [
                           Icon(
                             Icons.add,

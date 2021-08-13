@@ -1,13 +1,7 @@
-import 'package:flutter/widgets.dart';
 
-import 'Dashboard.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
-
-import 'described.dart';
-
-void main() {
-  runApp(Home());
-}
+import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
   @override
@@ -17,108 +11,67 @@ class Home extends StatefulWidget {
 }
 
 class _Home extends State<Home> {
-  ScrollController _controller = new ScrollController();
+  late List data;
+  late Widget bodey = Center(child: Image.asset("assets/images/loding.gif",height: 200,width: 200,));
+  @override
+  void initState() {
+    super.initState();
+    getdata();
+  }
+
+  Future<String> getdata() async {
+    var response = await http.get(Uri.parse(
+        "http://192.168.100.45:1500/get_categories?email=info@kfc.com&password=kfc"));
+    var jsondata = jsonDecode(response.body);
+    setState(() {
+      data = jsondata;
+      bodey = GridView.builder(
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+              maxCrossAxisExtent: 191.6,
+              childAspectRatio: 1 / 0.858,
+              crossAxisSpacing: 5,
+              mainAxisSpacing: 5),
+          itemCount: data.length,
+          itemBuilder: (BuildContext ctx, index) {
+            return Container(
+                margin: EdgeInsets.all(5),
+                child: Column(children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.all(Radius.circular(20)),
+                      child: Image.network("http://10.224.132.255:1500/get_categories_image?path=" + data[index]["logo"])),
+                  SizedBox(height: 3.3),
+                  Text(data[index]["name"],
+                      style: TextStyle(color: Colors.black, fontSize: 15))
+                ]));
+          });
+    });
+
+
+    return "success";
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-
-        children: [
-
-
-          Center(
-
-            child: Text(
-              'shop app dashboard',
-              style: TextStyle(color: Colors.red, fontSize: 19, height: 4),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 2,
-              physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-              controller: _controller,
-
-
-              children: List.generate(100, (index) {
-
-                return Card(
-
-
-                  shape: RoundedRectangleBorder(
-
-                    side: BorderSide(color: Colors.deepOrange, width: 1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-
-
-                  child: Column(
-
-
-
-                    mainAxisSize: MainAxisSize.max,
-
-                    children: <Widget>[
-                      InkWell(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (BuildContext context) => described()));
-
-                        },
-                        child: Column(
-                          children: [
-
-                            Image.network('https://picsum.photos/500/500?random=$index',width: 150, height: 150,),
-                            Text(
-                              'Text $index',
-                              style: TextStyle(fontSize: 15),
-
-                            ),
-                          ],
-                        ),
-                      ),
-
-
-
-//                       Container(
-//                           decoration: BoxDecoration(
-//                             color: Colors.green,
-//                             borderRadius: BorderRadius.only(
-//                               topRight: Radius.circular(30.0),
-//                               bottomLeft: Radius.circular(30.0),
-//                             ),
-//                             image: const DecorationImage(
-//                               image: Image.network(
-// 'https://picsum.photos/500/500?random=$index')
-//                               fit: BoxFit.cover,
-//                             ),
-//                           ),
-//                         child: Image.network(
-//                           'https://picsum.photos/500/500?random=$index',
-//                           width: 150,
-//                           height: 150,
-//                         )
-//                       ),
-
-
-
-
-
-
-                    ],
-
-                  ),
-
-
-                );
-              }),
-
-
-            ),
-          ),
-        ],
+      appBar: AppBar(
+        title: Text("Home"),
+        automaticallyImplyLeading: false,
       ),
-    );
+      body: bodey,backgroundColor: Colors.white,);
   }
 }
+
+//
+// class _bodey extends StatelessWidget {
+//   late List data;
+//   _bodey(List Data){
+//     this.data = Data;
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return data.length>10
+//         ?
+//         :
+//   }
+// }

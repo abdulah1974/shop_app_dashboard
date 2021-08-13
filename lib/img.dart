@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-
-class dashboard extends StatefulWidget {
-  const dashboard({Key? key}) : super(key: key);
+import 'Dashboard.dart';
+class img extends StatefulWidget {
+  const img({Key? key}) : super(key: key);
 
   @override
   _dashboardState createState() => _dashboardState();
